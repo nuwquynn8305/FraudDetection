@@ -1,0 +1,20 @@
+# Data and models (too large for git)
+/data/
+/models/
+#!/models/production_model.pkl
+
+# Environment variables (secrets!)
+.env
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# Jupyter checkpoint files
+.ipynb_checkpoints/
+mlruns/
+mlartifacts/
+mlflow.db
+
+*.egg-info/
+src.egg-info/
