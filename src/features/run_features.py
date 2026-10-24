@@ -63,6 +63,7 @@ def run_feature_pipeline(
     print(f"\nFeature selection completed in {t2_elapsed:.2f}s")
 
     # ---------- Save ----------
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     df_selected.to_csv(output_path, index=False)
     print(f"\nSaved to: {output_path}")
 

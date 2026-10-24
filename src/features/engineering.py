@@ -9,6 +9,8 @@ theo ngữ nghĩa.
 Chạy từ thư mục gốc dự án với: python src/features/engineering.py
 """
 
+from __future__ import annotations
+
 import logging
 from pathlib import Path
 from typing import Dict, List, Tuple

@@ -27,7 +27,8 @@ render_demo_banner()
 
 # ---------- Comparison table ----------
 results = load_model_results()
-order = ["baseline", "random_forest", "xgboost_untuned", "xgboost_tuned"]
+# Chỉ sử dụng các models có sẵn trong JSON
+order = [key for key in ["baseline", "random_forest", "xgboost_untuned", "xgboost_tuned"] if key in results]
 rows = []
 for key in order:
     r = results[key]
@@ -63,12 +64,12 @@ st.markdown("### Tại Sao XGBoost Chiến Thắng")
 
 # Visual comparison of key metrics
 winner = results["xgboost_tuned"]
-rf = results["random_forest"]
+baseline = results["baseline"]
 
 comparison_data = {
-    "Metric": ["PR-AUC", "Precision", "Recall", "F1", "Train Time (s)"],
-    "XGBoost": [winner["pr_auc"], winner["precision"], winner["recall"], winner["f1"], 2],
-    "Random Forest": [rf["pr_auc"], rf["precision"], rf["recall"], rf["f1"], 30],
+    "Metric": ["PR-AUC", "Precision", "Recall", "F1"],
+    "XGBoost": [winner["pr_auc"], winner["precision"], winner["recall"], winner["f1"]],
+    "Baseline": [baseline["pr_auc"], baseline["precision"], baseline["recall"], baseline["f1"]],
 }
 
 fig = go.Figure()
@@ -79,14 +80,14 @@ fig.add_trace(go.Bar(
     marker_color=COLORS["primary"],
 ))
 fig.add_trace(go.Bar(
-    name="Random Forest",
+    name="Baseline",
     x=comparison_data["Metric"],
-    y=comparison_data["Random Forest"],
+    y=comparison_data["Baseline"],
     marker_color=COLORS["accent"],
 ))
 fig.update_layout(
     barmode="group",
-    title="So Sánh XGBoost vs Random Forest",
+    title="So Sánh XGBoost vs Baseline",
     height=400,
 )
 st.plotly_chart(fig, use_container_width=True)

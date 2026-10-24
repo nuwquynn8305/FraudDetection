@@ -3,6 +3,8 @@ Data cleaner: handles nulls, duplicates, dtypes; saves cleaned CSV.
 Run from the project root with: python src/data/cleaner.py
 """
 
+from __future__ import annotations
+
 import pandas as pd
 from pathlib import Path
 
@@ -23,13 +25,16 @@ INTEGER_COLUMNS = ["Class"]
 CATEGORICAL_COLUMNS = []
 
 
-def clean_data(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+def clean_data(
+    df: pd.DataFrame,
+    output_path: Path | None = None
+) -> tuple[pd.DataFrame, dict]:
     """
     Clean a DataFrame:
       1. Handle nulls
       2. Remove duplicates
       3. Convert dtypes
-      4. Save to data/cleaned.csv
+      4. Save to data/cleaned.csv (or specified output_path)
       5. Re-run quality gate
     Returns (cleaned_df, quality_result).
     """
@@ -112,7 +117,9 @@ def clean_data(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
 
     # ---------- Step 4: Save cleaned CSV ----------
 
-    output_path = Path("data") / "cleaned.csv"
+    if output_path is None:
+        output_path = Path("data") / "cleaned.csv"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
     print(f"Saved cleaned data to: {output_path}")
 

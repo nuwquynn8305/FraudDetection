@@ -25,54 +25,42 @@
 
 ## 2. Architecture
 
-The pipeline flows from raw data through cleaning, feature engineering, model training and deployment:
+The pipeline follows the enterprise 6-tier Data & AI Architecture:
 ```
-┌─────────────────┐
-│     CSV         │  284,807 transactions
-│  (raw data)     │
-└────────┬────────┘
-│
-▼
-┌─────────────────┐
-│  Quality Gate   │  5 automated checks (schema, rows,
-│  (validation)   │   nulls, ranges, target distribution)
-└────────┬────────┘
-│
-▼
-┌─────────────────┐
-│  Cleaner        │  Dedupe (-1,081 rows), dtype coercion
-└────────┬────────┘
-│
-▼
-┌─────────────────┐
-│  Feature        │  13 engineered features across 3 categories:
-│  Engineering    │   domain, statistical, interaction
-└────────┬────────┘
-│
-▼
-┌─────────────────┐
-│  Feature        │  Drop low-variance / highly-correlated features
-│  Selection      │   (1 dropped: amount_zero_flag)
-└────────┬────────┘
-│
-▼
-┌─────────────────┐      ┌──────────────────┐
-│  Model          │─────▶  MLflow          
-│  Training       │      │  Experiment      │
-│  + Tuning       │      │  Tracking        │
-└────────┬────────┘      └──────────────────┘
-│
-▼
-┌─────────────────┐
-│  production_    │  Tuned XGBoost (Optuna, 30 trials)
-│  model.pkl      │
-└────────┬────────┘
-│
-▼
-┌─────────────────┐
-│  Streamlit App  │  Multi-page portfolio dashboard
-│  (Dockerized)   │   with live prediction widget
-└─────────────────┘
+1. RAW DATA (CSV / Synthetic Generator / Real-time Stream)
+       │
+       ▼
+2. INGESTION LAYER (src/data/ingestion.py)
+   ├── Batch Ingestion (Auto-load into Bronze Data Lake)
+   └── Streaming Simulation (Kafka-style transaction generator)
+       │
+       ▼
+3. ETL / ELT PROCESSING (src/data/ + src/features/)
+   ├── Quality Gate (5 automated checks: schema, rows, nulls, ranges, target)
+   ├── Cleaner (Dedupe, dtype coercion)
+   └── Feature Engineering (13 engineered domain, statistical & interaction features)
+       │
+       ▼
+4. STORAGE LAYER (src/data/storage.py)
+   ├── Medallion Data Lake:
+   │   ├── Bronze: data/bronze/raw_transactions.csv
+   │   ├── Silver: data/silver/cleaned.csv
+   │   └── Gold:   data/gold/features.csv
+   └── Data Warehouse (Embedded SQLite DB - data/warehouse.db)
+       │
+       ▼
+5. MACHINE LEARNING (src/models/)
+   ├── Baseline: Logistic Regression (balanced)
+   ├── Model Comparison: Random Forest, XGBoost
+   ├── Bayesian Optimization: Optuna (30 trials)
+   ├── Experiment Tracking: MLflow (params, metrics, model artifacts)
+   └── Production Model: models/production_model.pkl
+       │
+       ▼
+6. VISUALIZATION & SERVING (app/)
+   └── Streamlit Multi-page Dashboard (EDA, Live Prediction Widget, Architecture)
+
+[ORCHESTRATION & MONITORING: run_pipeline.py + Pytest (22 tests) + GitHub Actions CI]
 ```
 ---
 
@@ -158,18 +146,33 @@ You'll also need the Credit Card Fraud dataset:
 
 ## 6. How to Run
 
-### Run the full ML pipeline
+### Run the full pipeline with one command (Orchestrator)
 
-Each step depends on the previous one's output:
+The project now includes an automated end-to-end pipeline orchestrator connecting all 6 layers (Ingestion $\to$ Quality Gate $\to$ Cleaning $\to$ Feature Store $\to$ Model Training $\to$ Dashboard Export $\to$ Pytest Verification):
 
 ```bash
+# Run the complete pipeline automatically:
+python run_pipeline.py
+
+# Or if you don't have the 150MB Kaggle dataset yet, generate realistic synthetic data:
+python run_pipeline.py --synthetic --samples 15000
+```
+
+### Alternatively, run steps individually:
+
+Each step can also be run independently:
+
+```bash
+# 0. Ingestion (Batch / Synthetic generator)
+python -c "from src.data.ingestion import ingest_raw_data; ingest_raw_data()"
+
 # 1. Validate raw data
 python src/data/quality.py
 
-# 2. Clean the data (writes data/cleaned.csv)
+# 2. Clean the data (writes data/cleaned.csv and silver layer)
 python src/data/cleaner.py
 
-# 3. Engineer and select features (writes data/features.csv)
+# 3. Engineer and select features (writes data/features.csv and gold layer)
 python src/features/run_features.py
 
 # 4. Tune hyperparameters via Optuna (writes models/best_params.json)

@@ -19,7 +19,12 @@ def production_model():
         pytest.skip(
             f"Model not found at {MODEL_PATH}. Run src/models/run_training.py first."
         )
-    return joblib.load(MODEL_PATH)
+    try:
+        return joblib.load(MODEL_PATH)
+    except (ImportError, ModuleNotFoundError) as e:
+        pytest.skip(
+            f"Dependencies required for model are missing ({e}). Install xgboost/scikit-learn."
+        )
 
 
 def test_model_loads(production_model):
