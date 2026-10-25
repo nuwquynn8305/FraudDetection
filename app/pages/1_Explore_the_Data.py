@@ -82,9 +82,63 @@ with col2:
     st.plotly_chart(fig, use_container_width=True)
 
 
+# ---------- Phân phối Thời Gian (Time & Bimodal Pattern) ----------
+st.markdown("---")
+st.markdown("### Phân Phối Thời Gian (Time & Chu Kỳ 24 Giờ)")
+
+col_time1, col_time2 = st.columns(2)
+
+with col_time1:
+    fig_time = px.histogram(
+        df,
+        x="Time",
+        nbins=96,
+        color="Class",
+        color_discrete_map={0: COLORS["legit"], 1: COLORS["fraud"]},
+        title="Phân Phối Time: Bimodal (2 đỉnh tương ứng 2 ngày)",
+        labels={"Time": "Time (giây từ giao dịch đầu tiên)", "count": "Số giao dịch"},
+        opacity=0.75,
+        barmode="overlay",
+    )
+    fig_time.update_layout(
+        height=400,
+        legend_title_text="Class",
+    )
+    st.plotly_chart(fig_time, use_container_width=True)
+    st.caption(
+        "💡 **Time là số giây tính từ giao dịch đầu tiên của bộ dữ liệu** (~48 giờ / 2 ngày). "
+        "Biểu đồ thể hiện rõ dạng **Bimodal (hai đỉnh)**: Giao dịch tập trung nhiều vào ban ngày "
+        "(tạo thành 2 đỉnh của 2 ngày) và giảm rõ rệt vào ban đêm (vùng trũng ở giữa)."
+    )
+
+with col_time2:
+    if "hour_of_day" in df.columns:
+        fig_hour = px.histogram(
+            df,
+            x="hour_of_day",
+            nbins=24,
+            color="Class",
+            color_discrete_map={0: COLORS["legit"], 1: COLORS["fraud"]},
+            title="Phân Phối Theo Chu Kỳ 24 Giờ (hour_of_day)",
+            labels={"hour_of_day": "Giờ tương đối (0 - 23)", "count": "Số giao dịch"},
+            opacity=0.75,
+            barmode="overlay",
+        )
+        fig_hour.update_layout(
+            height=400,
+            legend_title_text="Class",
+        )
+        st.plotly_chart(fig_hour, use_container_width=True)
+        st.caption(
+            "💡 **Về `hour_of_day`:** Do `Time` bắt đầu từ giao dịch đầu tiên (không nhất thiết là 0h sáng), "
+            "`hour_of_day` là giờ tương đối trong chu kỳ 24 giờ. Feature này giúp mô hình "
+            "**học được nhịp sinh học / chu kỳ 24 giờ** của người dùng thay vì khẳng định giờ thực tế."
+        )
+
+
 # ---------- Khám phá feature tương tác ----------
 st.markdown("---")
-st.markdown("### Khám Phá Feature")
+st.markdown("### Khám Phá Chi Tiết Từng Feature")
 
 interesting_features = [
     "Amount", "Time", "log_amount", "hour_of_day", "v_magnitude",
@@ -93,7 +147,7 @@ interesting_features = [
 ]
 interesting_features = [f for f in interesting_features if f in df.columns]
 
-feature = st.selectbox("Chọn một feature:", interesting_features, index=0)
+feature = st.selectbox("Chọn một feature để phân tích chi tiết:", interesting_features, index=0)
 
 col1, col2 = st.columns(2)
 with col1:
@@ -106,7 +160,7 @@ with col1:
     fig.update_layout(
         title=f"Phân Phối {feature} Theo Class",
         height=400,
-        legend_title_text="",
+        legend_title_text="Class",
     )
     st.plotly_chart(fig, use_container_width=True)
 
@@ -159,16 +213,56 @@ fig.update_layout(
 st.plotly_chart(fig, use_container_width=True)
 
 
-# ---------- Phát hiện chính ----------
+# ---------- Phát hiện chính (Tính toán động từ dữ liệu) ----------
 st.markdown("---")
-st.markdown("### Phát Hiện Chính")
+st.markdown("### Phát Hiện Chính (Được tính trực tiếp từ dữ liệu)")
 
-# Biến info boxes thành visual badges
+# Tính toán các chỉ số động từ DataFrame thực tế
+fraud_rate = df["Class"].mean() * 100
+fraud_count = int(df["Class"].sum())
+total_count = len(df)
+amount_skew = float(df["Amount"].skew())
+median_amount = float(df["Amount"].median())
+max_amount = float(df["Amount"].max())
+time_span_hours = float(df["Time"].max() / 3600)
+
+# Lấy top PCA features tương quan âm mạnh nhất với Class
+v_cols = [f"V{i}" for i in range(1, 29) if f"V{i}" in df.columns]
+top_v_features = (
+    df[v_cols + ["Class"]]
+    .corr()["Class"]
+    .drop("Class")
+    .abs()
+    .sort_values(ascending=False)
+    .head(4)
+    .index.tolist()
+)
+
 key_findings = [
-    {"label": "Mất cân bằng", "value": "0.17%", "color": COLORS["fraud"]},
-    {"label": "Top Features", "value": "V14, V17, V12, V10", "color": COLORS["primary"]},
-    {"label": "Amount", "value": "Lệch phải", "color": COLORS["accent"]},
-    {"label": "Time", "value": "Bimodal", "color": COLORS["neutral"]},
+    {
+        "label": "Mất cân bằng",
+        "value": f"{fraud_rate:.3f}%",
+        "subtext": f"{fraud_count:,} / {total_count:,} ca",
+        "color": COLORS["fraud"],
+    },
+    {
+        "label": "Top Features PCA",
+        "value": ", ".join(top_v_features),
+        "subtext": "Tương quan âm mạnh nhất",
+        "color": COLORS["primary"],
+    },
+    {
+        "label": "Amount (Số tiền)",
+        "value": f"Lệch phải ({amount_skew:+.1f})",
+        "subtext": f"Median ${median_amount:.0f} | Max ${max_amount:,.0f}",
+        "color": COLORS["accent"],
+    },
+    {
+        "label": "Time (Thời gian)",
+        "value": "Bimodal (2 đỉnh)",
+        "subtext": f"2 chu kỳ (~{time_hours:.0f} giờ)",
+        "color": COLORS["neutral"],
+    },
 ]
 
 cols = st.columns(4)
@@ -183,8 +277,9 @@ for i, finding in enumerate(key_findings):
                 text-align: center;
                 border: 2px solid {finding["color"]};
             '>
-                <div style='font-size: 0.8em; color: #666;'>{finding['label']}</div>
-                <div style='font-size: 1.2em; font-weight: bold; color: {finding["color"]};'>{finding['value']}</div>
+                <div style='font-size: 0.85em; color: #555; font-weight: 500;'>{finding['label']}</div>
+                <div style='font-size: 1.2em; font-weight: bold; color: {finding["color"]}; margin: 4px 0;'>{finding['value']}</div>
+                <div style='font-size: 0.78em; color: #666;'>{finding['subtext']}</div>
             </div>
             """,
             unsafe_allow_html=True,

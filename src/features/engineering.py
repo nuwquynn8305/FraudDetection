@@ -61,14 +61,14 @@ def create_features(df: pd.DataFrame) -> pd.DataFrame:
     # gian lận thường xảy ra vào giờ bất thường khi nạn nhân đang ngủ.
 
     # Feature 1: hour_of_day
-    # TẠI SAO: Gian lận thường phổ biến hơn vào ban đêm khi chủ thẻ
-    # sẽ không nhận ra giao dịch ngay lập tức. Time gốc chỉ là
-    # giây kể từ khi bắt đầu dataset, khó cho model sử dụng.
+    # TẠI SAO: Trích xuất giờ tương đối theo chu kỳ 24 giờ (Time tính từ giao dịch đầu tiên).
+    # Feature này giúp model học được nhịp sinh học / chu kỳ hoạt động 24h
+    # (các khoảng cao điểm và thấp điểm giao dịch theo ngày).
     df["hour_of_day"] = (df["Time"] // 3600) % 24
 
     # Feature 2: is_night
-    # TẠI SAO: Cờ nhị phân cho "giờ bất thường" làm cho pattern ban đêm
-    # trở nên rõ ràng với model. Tỷ lệ gian lận thường tăng từ nửa đêm đến 6 giờ sáng.
+    # TẠI SAO: Cờ nhị phân cho các khoảng giờ thấp điểm tương đối (giờ 0 đến 5)
+    # theo chu kỳ 24h, giúp model bắt các giao dịch diễn ra trong vùng trũng hoạt động.
     df["is_night"] = ((df["hour_of_day"] >= 0) &
                       (df["hour_of_day"] < 6)).astype(int)
 
