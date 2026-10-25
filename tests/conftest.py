@@ -8,7 +8,6 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-
 # Project root path — useful for locating data and model files
 PROJECT_ROOT = Path(__file__).parent.parent
 

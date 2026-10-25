@@ -9,9 +9,14 @@ import joblib
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
-
-from utils import COLORS, load_features, load_model_results, page_header, render_demo_banner, render_footer
-
+from utils import (
+    COLORS,
+    load_features,
+    load_model_results,
+    page_header,
+    render_demo_banner,
+    render_footer,
+)
 
 st.set_page_config(
     page_title="Kết Quả Model",

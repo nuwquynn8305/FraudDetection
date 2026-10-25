@@ -6,9 +6,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 
 import streamlit as st
-
 from utils import page_header, render_demo_banner, render_footer
-
 
 st.set_page_config(
     page_title="Tôi Đã Xây Dựng Như Thế Này",

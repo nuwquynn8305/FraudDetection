@@ -16,7 +16,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-
 # Same constants the real pipeline uses
 TARGET_COLUMN = "Class"
 RANDOM_STATE = 42

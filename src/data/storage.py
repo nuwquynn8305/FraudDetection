@@ -17,7 +17,6 @@ from __future__ import annotations
 import logging
 import sqlite3
 from pathlib import Path
-from typing import Optional
 
 import pandas as pd
 
@@ -51,7 +50,7 @@ class DataWarehouse:
             df.to_sql(table_name, conn, if_exists=if_exists, index=False)
             logger.info(f"Đã lưu {len(df):,} dòng vào bảng DWH: '{table_name}' ({self.db_path})")
 
-    def read_table(self, table_name: str, limit: Optional[int] = None) -> pd.DataFrame:
+    def read_table(self, table_name: str, limit: int | None = None) -> pd.DataFrame:
         """Đọc bảng từ Data Warehouse."""
         query = f"SELECT * FROM {table_name}"
         if limit:

@@ -10,11 +10,9 @@ tạo tự động để app luôn hoạt động.
 import json
 import logging
 from pathlib import Path
-from typing import Dict, Optional
 
 import pandas as pd
 import streamlit as st
-
 from demo_data import (
     generate_demo_features,
     generate_demo_predictions,
@@ -64,7 +62,7 @@ def load_features() -> pd.DataFrame:
         return generate_demo_features()
     except Exception as e:
         logger.error(f"Lỗi khi tải features: {e}")
-        st.error(f"Không thể tải dữ liệu features: {str(e)}")
+        st.error(f"Không thể tải dữ liệu features: {e!s}")
         raise
 
 
@@ -87,12 +85,12 @@ def load_predictions() -> pd.DataFrame:
         return generate_demo_predictions(features)
     except Exception as e:
         logger.error(f"Lỗi khi tải predictions: {e}")
-        st.error(f"Không thể tải dữ liệu predictions: {str(e)}")
+        st.error(f"Không thể tải dữ liệu predictions: {e!s}")
         raise
 
 
 @st.cache_data
-def load_model_results() -> Dict:
+def load_model_results() -> dict:
     """Tải metric so sánh model, hoặc tạo kết quả demo nếu thiếu.
     
     Returns:
@@ -110,11 +108,11 @@ def load_model_results() -> Dict:
         return generate_demo_results()
     except json.JSONDecodeError as e:
         logger.error(f"Lỗi JSON khi đọc model results: {e}")
-        st.error(f"File model results bị hỏng: {str(e)}")
+        st.error(f"File model results bị hỏng: {e!s}")
         raise
     except Exception as e:
         logger.error(f"Lỗi khi tải model results: {e}")
-        st.error(f"Không thể tải model results: {str(e)}")
+        st.error(f"Không thể tải model results: {e!s}")
         raise
 
 

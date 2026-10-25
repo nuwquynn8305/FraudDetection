@@ -4,7 +4,6 @@ Trang chính (Tổng quan dự án).
 """
 
 import streamlit as st
-
 from utils import (
     COLORS,
     load_features,
@@ -12,7 +11,6 @@ from utils import (
     render_demo_banner,
     render_footer,
 )
-
 
 # ---------- Cấu hình trang ----------
 st.set_page_config(
@@ -86,7 +84,6 @@ with col4:
     )
 
 # Thêm chart cho class distribution
-import plotly.express as px
 import plotly.graph_objects as go
 
 class_counts = features_df["Class"].value_counts()
@@ -94,12 +91,12 @@ fig_pie = go.Figure(data=[go.Pie(
     labels=['Hợp pháp', 'Gian lận'],
     values=[class_counts[0], class_counts[1]],
     hole=0.4,
-    marker=dict(colors=[COLORS["legit"], COLORS["fraud"]])
+    marker={"colors": [COLORS["legit"], COLORS["fraud"]]}
 )])
 fig_pie.update_layout(
     title="Phân Phối Giao Dịch",
     height=300,
-    margin=dict(l=0, r=0, t=30, b=0)
+    margin={"l": 0, "r": 0, "t": 30, "b": 0}
 )
 
 st.plotly_chart(fig_pie, use_container_width=True)
@@ -119,12 +116,12 @@ fig_cm = go.Figure(data=go.Heatmap(
           [f"{winner['fn']:,}", f"{winner['tp']:,}"]],
     texttemplate="%{text}",
     textfont={"size": 14},
-    colorbar=dict(title="Số lượng")
+    colorbar={"title": "Số lượng"}
 ))
 fig_cm.update_layout(
     title="Confusion Matrix",
     height=350,
-    margin=dict(l=80, r=20, t=40, b=20)
+    margin={"l": 80, "r": 20, "t": 40, "b": 20}
 )
 st.plotly_chart(fig_cm, use_container_width=True)
 
@@ -141,9 +138,9 @@ fig_metrics = go.Figure(data=[go.Bar(
 )])
 fig_metrics.update_layout(
     title="Metrics Model",
-    yaxis=dict(range=[0, 1.1]),
+    yaxis={"range": [0, 1.1]},
     height=300,
-    margin=dict(l=0, r=0, t=30, b=0)
+    margin={"l": 0, "r": 0, "t": 30, "b": 0}
 )
 st.plotly_chart(fig_metrics, use_container_width=True)
 

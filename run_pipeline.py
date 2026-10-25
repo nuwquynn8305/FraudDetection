@@ -32,7 +32,7 @@ if sys.platform == "win32":
     try:
         sys.stdout.reconfigure(encoding="utf-8")
         sys.stderr.reconfigure(encoding="utf-8")
-    except Exception:
+    except Exception:  # noqa: BLE001, S110
         pass
 
 # Thiết lập logging
@@ -93,7 +93,7 @@ def run_full_pipeline(
     # -------------------------------------------------------------
     print_banner(1, "Data Ingestion & Bronze Storage")
     t0 = time.time()
-    from src.data.ingestion import ingest_raw_data, generate_synthetic_raw_data
+    from src.data.ingestion import generate_synthetic_raw_data, ingest_raw_data
     from src.data.storage import warehouse
 
     bronze_path = Path("data/bronze/raw_transactions.csv")
@@ -130,7 +130,7 @@ def run_full_pipeline(
     # Nạp mẫu vào Data Warehouse
     try:
         warehouse.write_table(df_raw.head(5000), "bronze_raw_transactions")
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.warning(f"Không thể lưu vào Data Warehouse: {e}")
 
     timings["1. Ingestion"] = time.time() - t0
@@ -168,7 +168,7 @@ def run_full_pipeline(
 
     try:
         warehouse.write_table(df_clean.head(5000), "silver_cleaned_transactions")
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.warning(f"Không thể lưu bảng silver vào DWH: {e}")
 
     timings["3. Cleaning & ETL"] = time.time() - t0
@@ -190,7 +190,7 @@ def run_full_pipeline(
 
     try:
         warehouse.write_table(df_features.head(5000), "gold_features")
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.warning(f"Không thể lưu bảng gold vào DWH: {e}")
 
     timings["4. Feature Engineering"] = time.time() - t0
@@ -216,7 +216,7 @@ def run_full_pipeline(
     try:
         from src.models.export_for_app import main as export_main
         export_main()
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.warning(f"export_for_app gặp lỗi ({e}). Chạy fallback export...")
         _export_fallback_artifacts(df_features)
 
@@ -245,7 +245,7 @@ def run_full_pipeline(
     try:
         for tbl, count in warehouse.get_tables_summary().items():
             print(f"    - Bang '{tbl}': {count:,} records")
-    except Exception:
+    except Exception:  # noqa: BLE001, S110
         pass
     print("\n[DONE] DU AN DA SAN SANG! Khoi dong Dashboard voi lenh:")
     print("    streamlit run app/streamlit_app.py")

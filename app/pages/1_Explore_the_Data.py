@@ -9,9 +9,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-
 from utils import COLORS, load_features, page_header, render_demo_banner, render_footer
-
 
 st.set_page_config(
     page_title="Khám Phá Dữ Liệu",

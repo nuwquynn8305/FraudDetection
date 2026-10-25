@@ -11,8 +11,8 @@ from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator, Optional
 
 import numpy as np
 import pandas as pd
@@ -82,7 +82,7 @@ def generate_synthetic_raw_data(
 
 
 def ingest_raw_data(
-    source_path: Optional[Path] = None,
+    source_path: Path | None = None,
     bronze_dir: Path = Path("data/bronze"),
     fallback_n_samples: int = 15000
 ) -> Path:

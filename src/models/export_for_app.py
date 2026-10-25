@@ -21,7 +21,6 @@ from sklearn.metrics import (
 )
 from sklearn.model_selection import train_test_split
 
-
 TARGET_COLUMN = "Class"
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
@@ -33,7 +32,7 @@ def main():
     X = df.drop(columns=[TARGET_COLUMN])
     y = df[TARGET_COLUMN]
     stratify = y if y.value_counts().min() >= 2 else None
-    X_train, X_test, y_train, y_test = train_test_split(
+    _X_train, X_test, _y_train, y_test = train_test_split(
         X, y, test_size=TEST_SIZE, stratify=stratify, random_state=RANDOM_STATE
     )
 

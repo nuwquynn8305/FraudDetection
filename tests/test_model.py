@@ -4,9 +4,7 @@ from pathlib import Path
 
 import joblib
 import numpy as np
-import pandas as pd
 import pytest
-
 
 PROJECT_ROOT = Path(__file__).parent.parent
 MODEL_PATH = PROJECT_ROOT / "models" / "production_model.pkl"

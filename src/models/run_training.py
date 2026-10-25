@@ -38,7 +38,6 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from xgboost import XGBClassifier
 
-
 # ---------- Configuration ----------
 MLFLOW_TRACKING_URI = "http://127.0.0.1:5000"
 EXPERIMENT_NAME = "fraud_detection"

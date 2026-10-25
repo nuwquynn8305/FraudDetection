@@ -31,7 +31,6 @@ from sklearn.metrics import (
 from sklearn.model_selection import StratifiedKFold, cross_val_score, train_test_split
 from xgboost import XGBClassifier
 
-
 TARGET_COLUMN = "Class"
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
